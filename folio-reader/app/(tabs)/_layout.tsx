@@ -1,7 +1,7 @@
 import { Tabs, usePathname, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../contexts/ThemeContext';
-import { getRainbowGradient } from '../../constants/theme';
+import { getRainbowGradient, getButtonGradientStops } from '../../constants/theme';
 import { View, Platform } from 'react-native';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useSharedValue } from 'react-native-reanimated';
@@ -21,15 +21,15 @@ function GradientTabIcon({ name, size, color, focused }: { name: any; size: numb
   // Web: Use same SVG paths for both active and inactive, just different colors
   const gradientId = `tab-icon-gradient-${name}`;
   const iconPaths = getIconPaths(name);
-  
+  const gradientStops = getButtonGradientStops(colors);
+
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <defs>
         <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor={colors.accent} />
-          <stop offset="40%" stopColor={colors.secondary} />
-          <stop offset="70%" stopColor="#8B6DB8" />
-          <stop offset="100%" stopColor="#A85A95" />
+          {gradientStops.map((stop, i) => (
+            <stop key={i} offset={stop.offset} stopColor={stop.color} />
+          ))}
         </linearGradient>
       </defs>
       <g fill={focused ? `url(#${gradientId})` : color}>
@@ -43,7 +43,7 @@ function GradientTabIcon({ name, size, color, focused }: { name: any; size: numb
 function getIconPaths(name: string): string[] {
   const paths: Record<string, string[]> = {
     // Open book icon - symmetrical spread
-    'book': ['M3 6c0-.83.67-1.5 1.5-1.5L12 7l7.5-2.5c.83 0 1.5.67 1.5 1.5v12c0 .83-.67 1.5-1.5 1.5L12 21l-7.5-2c-.83-.33-1.5-1-1.5-1.5V6zm2 0v10l6.5 1.5V8L5 6zm12 0l-6.5 2v9.5L19 16V6z'],
+    'book': ['M3 6c0-.83.67-1.5 1.5-1.5L12 7l7.5-2.5c.83 0 1.5.67 1.5 1.5v12c0 .83-.67 1.5-1.5 1.5L12 21l-7.5-2c-.83-.33-1.5-1-1.5-1.5V6zm2 0v10l6.5 1.5V8L5 6zm12 0l-6.5 2v8L19 16V6z'],
     'headset': ['M12 1a9 9 0 0 0-9 9v7c0 1.66 1.34 3 3 3h3v-8H5v-2c0-3.87 3.13-7 7-7s7 3.13 7 7v2h-4v8h3c1.66 0 3-1.34 3-3v-7a9 9 0 0 0-9-9z'],
     'search': ['M21.71 20.29L18 16.61A9 9 0 1 0 16.61 18l3.68 3.68a1 1 0 0 0 1.42 0 1 1 0 0 0 0-1.39zM11 18a7 7 0 1 1 7-7 7 7 0 0 1-7 7z'],
     'person-circle': ['M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'],

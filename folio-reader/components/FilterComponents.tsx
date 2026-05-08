@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Platform, GestureResponderEvent } from 'react-native';
 import { useTheme } from '../contexts/ThemeContext';
-import { Typography, Spacing, Radius } from '../constants/theme';
+import { Typography, Spacing, Radius, getButtonGradient } from '../constants/theme';
 
 // ── Constants for consistent styling ──
 // Note: These are derived from theme colors.textOnAccent and colors.overlay
@@ -52,7 +52,7 @@ export function GradientChip({ label, active, onPress, onContextMenu }: Gradient
         ),
         // Active: translucent gradient background (web) or accent (native) - 80% opacity
         active && (Platform.OS === 'web'
-          ? { background: `linear-gradient(135deg, ${colors.accent}CC 0%, ${colors.secondary}CC 100%)` } as any
+          ? { background: getButtonGradient(colors) } as any
           : { backgroundColor: colors.accent }
         ),
       ]}
@@ -196,7 +196,7 @@ export function FilterTab({ label, active, onPress, isFirst, isLast, showTopBord
         ...(Platform.OS !== 'web' && active && { backgroundColor: colors.accent }),
         // Active web: translucent gradient (80% opacity)
         ...(Platform.OS === 'web' && active && {
-          background: `linear-gradient(135deg, ${colors.accent}CC 0%, ${colors.secondary}CC 100%)`,
+          background: getButtonGradient(colors),
         }),
         // No borders for cleaner look
         marginBottom: -1,

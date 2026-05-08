@@ -4,9 +4,9 @@
 export const KAVITA_ENDPOINTS = {
   // Library endpoints - tried in order
   libraries: [
-    '/api/v2/library',      // Kavita v2 API
-    '/api/library',         // Kavita 0.8.x lowercase
-    '/api/Library',         // Older versions (capitalized)
+    '/api/Library',         // Standard library endpoint
+    '/api/library',         // Lowercase variant
+    '/api/v2/library',      // v2 variant
     '/api/Library/all',     // Legacy fallback
   ],
 
@@ -14,13 +14,15 @@ export const KAVITA_ENDPOINTS = {
   series: {
     // For fetching all series across libraries
     all: [
-      '/api/v2/series',     // Kavita v2 API
-      '/api/series/all',    // Kavita 0.8.x lowercase
-      '/api/Series/all',    // Older versions (capitalized)
+      '/api/Series/v2',     // Kavita v2 API (correct pattern)
+      '/api/v2/series',     // Alternative v2 pattern
+      '/api/series/all',    // Lowercase variant
+      '/api/Series/all',    // Capitalized variant
     ],
     // For fetching series from a specific library
     byLibrary: [
-      '/api/v2/series',     // Kavita v2 API
+      '/api/Series/v2',     // Kavita v2 API (correct pattern)
+      '/api/v2/series',     // Alternative v2 pattern
       '/api/Series/all',    // v1 endpoint
     ],
   },

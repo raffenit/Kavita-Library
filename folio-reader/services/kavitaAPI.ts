@@ -354,6 +354,11 @@ class KavitaAPI {
       try {
         if (type === 'libraries') {
           const response = await this.client.get(endpoint);
+          // Treat 204 (No Content) as failure - endpoint not working
+          if (response.status === 204) {
+            console.log(`[KavitaAPI] Endpoint ${endpoint} returned 204 (No Content) for ${type}`);
+            continue;
+          }
           if (Array.isArray(response.data) && response.data.length > 0) {
             this.detectedEndpoints.set(cacheKey, endpoint);
             console.log(`[KavitaAPI] Detected working endpoint for ${type}:`, endpoint);
@@ -366,6 +371,11 @@ class KavitaAPI {
             pageNumber: 0,
             pageSize: 1,
           });
+          // Treat 204 (No Content) as failure - endpoint not working
+          if (response.status === 204) {
+            console.log(`[KavitaAPI] Endpoint ${endpoint} returned 204 (No Content) for ${type}`);
+            continue;
+          }
           if (Array.isArray(response.data)) {
             this.detectedEndpoints.set(cacheKey, endpoint);
             console.log(`[KavitaAPI] Detected working endpoint for ${type}:`, endpoint);
@@ -378,10 +388,10 @@ class KavitaAPI {
       }
     }
 
-    // Default to first endpoint if none worked
-    const defaultEndpoint = endpoints[0];
-    console.log(`[KavitaAPI] Using default endpoint for ${type}:`, defaultEndpoint);
-    return defaultEndpoint;
+    // If no endpoint returned data, don't cache anything
+    // This allows the fallback logic in getLibraries to work properly
+    console.log(`[KavitaAPI] No working endpoint found for ${type}, will try fallback`);
+    return endpoints[0];
   }
 
   private setServer(url: string, key: string) {
@@ -514,23 +524,30 @@ class KavitaAPI {
     // Try to detect server version first
     await this.detectServerVersion();
 
-    // Use endpoint detection to find the working endpoint
-    const endpoint = await this.getEndpointForType('libraries');
+    // Try all library endpoints directly (bypassing endpoint detection for libraries)
+    // This ensures we don't get stuck with a cached non-working endpoint
+    for (const endpoint of KAVITA_ENDPOINTS.libraries) {
+      try {
+        console.log(`[KavitaAPI] Trying ${endpoint}...`);
+        const response = await this.client.get(endpoint);
+        console.log(`[KavitaAPI] ${endpoint} response:`, response.status,
+          Array.isArray(response.data) ? `${response.data.length} items` : typeof response.data);
 
-    try {
-      console.log(`[KavitaAPI] Using detected endpoint: ${endpoint}`);
-      const response = await this.client.get(endpoint);
-      console.log(`[KavitaAPI] ${endpoint} response:`, response.status,
-        Array.isArray(response.data) ? `${response.data.length} items` : typeof response.data);
+        // Treat 204 as failure
+        if (response.status === 204) {
+          console.log(`[KavitaAPI] ${endpoint} returned 204 (No Content)`);
+          continue;
+        }
 
-      if (Array.isArray(response.data) && response.data.length > 0) {
-        console.log('[KavitaAPI] Returning libraries:', response.data.length);
-        return response.data;
+        if (Array.isArray(response.data) && response.data.length > 0) {
+          console.log('[KavitaAPI] Returning libraries:', response.data.length);
+          return response.data;
+        }
+      } catch (error: any) {
+        console.warn(`[KavitaAPI] ${endpoint} failed:`, error.response?.status, error.message);
       }
-    } catch (error: any) {
-      console.warn(`[KavitaAPI] Detected endpoint ${endpoint} failed:`, error.response?.status, error.message);
     }
-    
+
     // Fallback 1: discover libraries from on-deck series
     try {
       console.log(`[KavitaAPI] Trying fallback ${KAVITA_ENDPOINTS.onDeck}...`);

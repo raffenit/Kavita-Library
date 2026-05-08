@@ -8,6 +8,7 @@ export const KAVITA_ENDPOINTS = {
     '/api/library',         // Lowercase variant
     '/api/v2/library',      // v2 variant
     '/api/Library/all',     // Legacy fallback
+    '/api/Server/info',     // Server info endpoint (may contain library info)
   ],
 
   // Series endpoints - tried in order

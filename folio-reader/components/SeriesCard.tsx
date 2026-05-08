@@ -54,11 +54,6 @@ export const SeriesCard = React.memo(function SeriesCard({ series, onPress, onCo
   }, [provider, series.id, coverVersion]);
   const containerRef = useRef<View>(null);
 
-  // DEBUG: Log cover URL for troubleshooting
-  useEffect(() => {
-    console.log(`[SeriesCard] ${seriesTitle} (id=${series.id}): coverUrl=${coverUrl?.substring(0, 80)}...`);
-  }, [series.id, seriesTitle, coverUrl]);
-
   useEffect(() => {
     if (Platform.OS !== 'web' || !onContextMenu) return;
     const el = containerRef.current as any as HTMLElement;
@@ -92,13 +87,6 @@ export const SeriesCard = React.memo(function SeriesCard({ series, onPress, onCo
           source={{ uri: coverUrl }}
           style={styles.cover}
           resizeMode="cover"
-          onError={(e: any) => {
-            console.error(`[SeriesCard] Image load failed for ${seriesTitle}:`, e.nativeEvent?.error || 'Unknown error');
-            console.error(`[SeriesCard] Failed URL: ${coverUrl}`);
-          }}
-          onLoad={() => {
-            console.log(`[SeriesCard] Image loaded: ${seriesTitle}`);
-          }}
         />
         {/* Hover title overlay - web only */}
         {Platform.OS === 'web' && (

@@ -192,10 +192,10 @@ export class KavitaProvider implements LibraryProvider {
     return series.map(s => ({ id: s.id }));
   }
 
-  getCoverUrl(id: string | number): string {
+  getCoverUrl(id: string | number, bustCache?: boolean): string {
     const seriesId = typeof id === 'string' ? parseInt(id, 10) : id;
-    // Always bust cache to ensure new uploads appear immediately
-    return kavitaAPI.getSeriesCoverUrl(seriesId, true);
+    // Only bust cache when explicitly requested (e.g., after cover upload)
+    return kavitaAPI.getSeriesCoverUrl(seriesId, bustCache);
   }
 }
 

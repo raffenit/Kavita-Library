@@ -34,6 +34,7 @@ export default function ImageReaderScreen() {
     seriesId: string;
     volumeId: string;
     libraryId: string;
+    format?: string;
   }>();
 
   const [showHeader, setShowHeader] = useState(true);
@@ -60,7 +61,8 @@ export default function ImageReaderScreen() {
   const seriesId = Number(params.seriesId);
   const volumeId = Number(params.volumeId);
   const libraryId = Number(params.libraryId);
-  
+  const format = Number(params.format || 1); // Default to CBZ (format 1) if not specified
+
   const [chapterInfo, setChapterInfo] = useState<ChapterInfo | null>(null);
 
   // Fetch info once to populate the "suitcase" - wait for proxy to be ready
@@ -108,12 +110,32 @@ export default function ImageReaderScreen() {
     }
     // Include apiKey in both URLs for authentication
     const infoUrl = buildApiUrl('/api/Reader/chapter-info', `chapterId=${chapterId}&apiKey=${kavitaAPI.getApiKey()}`);
-    const imgUrl = buildApiUrl('/api/Reader/image', `bookId=${chapterId}&apiKey=${kavitaAPI.getApiKey()}`);
+
+    // Select endpoint based on file format
+    // Format: 0=Unknown, 1=Archive(CBZ), 2=Unknown, 3=Epub, 4=PDF
+    let imagePath: string;
+    let imageParam: string;
+    if (format === 4) {
+      // PDF uses dedicated endpoint
+      imagePath = '/api/Reader/pdf';
+      imageParam = 'chapterId';
+    } else if (format === 3) {
+      // EPUB uses dedicated endpoint
+      imagePath = '/api/Reader/epub';
+      imageParam = 'chapterId';
+    } else {
+      // CBZ (format 1) and others use image endpoint with chapterId
+      imagePath = '/api/Reader/image';
+      imageParam = 'chapterId';
+    }
+
+    const imgUrl = buildApiUrl(imagePath, `${imageParam}=${chapterId}&apiKey=${kavitaAPI.getApiKey()}`);
     const key = kavitaAPI.getApiKey();
-    console.log('[ImageReader] URLs built - chapterInfoUrl:', infoUrl);
+    console.log('[ImageReader] URLs built - format:', format, 'imagePath:', imagePath);
+    console.log('[ImageReader] chapterInfoUrl:', infoUrl);
     console.log('[ImageReader] imageBaseUrl (with apiKey):', imgUrl);
     return { chapterInfoUrl: infoUrl, imageBaseUrl: imgUrl, apiKey: key };
-  }, [proxyOrigin, serverUrl, chapterId]);
+  }, [proxyOrigin, serverUrl, chapterId, format]);
   
   // Track render count to diagnose re-render loops
   const renderCountRef = useRef(0);

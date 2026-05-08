@@ -515,6 +515,8 @@ class KavitaAPI {
   getServerUrl(): string { return this.serverUrl; }
   getToken(): string { return this.jwtToken; }
   getApiKey(): string { return this.apiKey; }
+  getUsername(): string { return this.username; }
+  getPassword(): string { return this.password; }
 
   // ── Libraries ───────────────────────────────────────────────────────────────
 
@@ -549,6 +551,7 @@ class KavitaAPI {
     }
 
     // Fallback 1: discover libraries from on-deck series
+    const libraryMap = new Map<number, Library>();
     try {
       console.log(`[KavitaAPI] Trying fallback ${KAVITA_ENDPOINTS.onDeck}...`);
       const response = await this.client.post(KAVITA_ENDPOINTS.onDeck, {
@@ -560,7 +563,6 @@ class KavitaAPI {
         Array.isArray(response.data) ? `${response.data.length} items` : typeof response.data);
 
       if (Array.isArray(response.data) && response.data.length > 0) {
-        const libraryMap = new Map<number, Library>();
         response.data.forEach((series: any) => {
           if (series.libraryId && !libraryMap.has(series.libraryId)) {
             libraryMap.set(series.libraryId, {
@@ -571,19 +573,14 @@ class KavitaAPI {
             });
           }
         });
-        const extractedLibraries = Array.from(libraryMap.values());
-        if (extractedLibraries.length > 0) {
-          console.log('[KavitaAPI] Extracted libraries from on-deck:', extractedLibraries.length);
-          return extractedLibraries;
-        }
+        console.log('[KavitaAPI] Extracted libraries from on-deck:', libraryMap.size);
       }
     } catch (error: any) {
       console.warn(`[KavitaAPI] ${KAVITA_ENDPOINTS.onDeck} failed:`, error.response?.status, error.message);
     }
 
-    // Fallback 2: try common library IDs (1, 2, 3) to discover all libraries
+    // Fallback 2: try common library IDs (1, 2, 3) to discover additional libraries
     console.log('[KavitaAPI] Trying fallback: probing common library IDs...');
-    const libraryMap = new Map<number, Library>();
     const commonLibraryIds = [1, 2, 3, 4, 5];
 
     for (const libId of commonLibraryIds) {

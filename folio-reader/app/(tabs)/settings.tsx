@@ -102,8 +102,8 @@ function KavitaConfigModal({ visible, onClose, onSuccess }: { visible: boolean; 
     if (visible) {
       setUrl(kavitaAPI.getServerUrl());
       setKey(kavitaAPI.getApiKey() || '');
-      setUsername('');
-      setPassword('');
+      setUsername(kavitaAPI.getUsername() || '');
+      setPassword(kavitaAPI.getPassword() || '');
       setStatus('');
       setDiscoveredServers([]);
       setManualMode(false);

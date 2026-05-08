@@ -50,9 +50,9 @@ export function GradientChip({ label, active, onPress, onContextMenu }: Gradient
           ? { background: `${colors.background}80`, backdropFilter: 'blur(4px)' } as any
           : { backgroundColor: colors.overlay }
         ),
-        // Active: translucent gradient background (web) or accent (native) - 75% opacity
+        // Active: translucent gradient background (web) or accent (native) - 80% opacity
         active && (Platform.OS === 'web'
-          ? { background: `linear-gradient(135deg, ${colors.accent}BF 0%, ${colors.secondary}BF 40%, #8B6DB8BF 70%, #A85A95BF 100%)` } as any
+          ? { background: `linear-gradient(135deg, ${colors.accent}CC 0%, ${colors.secondary}CC 100%)` } as any
           : { backgroundColor: colors.accent }
         ),
       ]}
@@ -194,9 +194,9 @@ export function FilterTab({ label, active, onPress, isFirst, isLast, showTopBord
         }),
         // Native: solid accent when active
         ...(Platform.OS !== 'web' && active && { backgroundColor: colors.accent }),
-        // Active web: translucent gradient (75% opacity)
+        // Active web: translucent gradient (80% opacity)
         ...(Platform.OS === 'web' && active && {
-          background: `linear-gradient(135deg, ${colors.accent}BF 0%, ${colors.secondary}BF 40%, #8B6DB8BF 70%, #A85A95BF 100%)`,
+          background: `linear-gradient(135deg, ${colors.accent}CC 0%, ${colors.secondary}CC 100%)`,
         }),
         // No borders for cleaner look
         marginBottom: -1,

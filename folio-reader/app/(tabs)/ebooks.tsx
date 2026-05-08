@@ -18,6 +18,7 @@ import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { kavitaAPI, Series, Genre, Tag, Collection } from '../../services/kavitaAPI';
 import { useAuth } from '../../contexts/AuthContext';
+import { getButtonGradient } from '../../constants/theme';
 import { useTheme } from '../../contexts/ThemeContext';
 import { SeriesCard } from '../../components/SeriesCard';
 import { useGridColumns } from '../../hooks/useGridColumns';
@@ -206,9 +207,9 @@ function GradientChip({ label, active, colors, onPress, onContextMenu }: {
   // Fixed gradient angle for consistent chip styling
   const gradientAngle = 135; // Fixed diagonal angle
 
-  // Use same gradient colors as dividers/labels for border and text - green to blue to purple to red-purple (linear)
-  const gradientBorder = `linear-gradient(${gradientAngle}deg, ${colors.accent} 0%, ${colors.secondary} 40%, #8B6DB8 70%, #A85A95 100%)`;
-  const textGradient = `linear-gradient(${gradientAngle}deg, ${colors.accent} 0%, ${colors.secondary} 40%, #8B6DB8 70%, #A85A95 100%)`;
+  // Use simplified gradient for border - accent to secondary (more opaque, less aggressive)
+  const gradientBorder = getButtonGradient(colors, gradientAngle);
+  const textGradient = getButtonGradient(colors, gradientAngle);
 
   if (Platform.OS === 'web') {
     return (

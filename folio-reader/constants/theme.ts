@@ -34,6 +34,25 @@ export function getRainbowGradient(colors: ColorScheme, angle: number = 135): st
   return `linear-gradient(${angle}deg, ${colors.accent} 0%, ${colors.secondary} 40%, #8B6DB8 70%, #A85A95 100%)`;
 }
 
+/**
+ * Generate a simplified gradient string for buttons and tabs
+ * Uses only accent → secondary with 80% opacity for a cleaner, more opaque look
+ */
+export function getButtonGradient(colors: ColorScheme, angle: number = 135): string {
+  return `linear-gradient(${angle}deg, ${colors.accent}CC 0%, ${colors.secondary}CC 100%)`;
+}
+
+/**
+ * Get gradient color stops for SVG gradients (bottom tabs, icons)
+ * Returns array of [offset, color] pairs
+ */
+export function getButtonGradientStops(colors: ColorScheme): Array<{ offset: string; color: string }> {
+  return [
+    { offset: '0%', color: colors.accent },
+    { offset: '100%', color: colors.secondary },
+  ];
+}
+
 export type ThemeName = 'midnight' | 'amoled' | 'sepia' | 'ocean' | 'forest' | 'starry' | 'custom';
 export type ThemeMode = 'light' | 'dark' | 'auto';
 export type FontName =

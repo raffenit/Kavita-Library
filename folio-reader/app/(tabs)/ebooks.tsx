@@ -751,8 +751,8 @@ export default function EbooksScreen() {
       fetchMetadata(false); // false = use cache if available
       // Refresh the continue reading setting in case it changed
       setShowContinueReading(kavitaAPI.isProgressTrackingEnabled());
-      // Force cover refresh in case user uploaded new cover on detail page
-      setCoverVersion(v => v + 1);
+      // Don't force cover refresh on every focus - only when explicitly needed
+      // setCoverVersion(v => v + 1);
     }, [fetchMetadata])
   );
 
@@ -1054,7 +1054,7 @@ export default function EbooksScreen() {
           data={series}
           keyExtractor={(item) => item.id.toString()}
           numColumns={numColumns}
-          contentContainerStyle={{ paddingBottom: 40, paddingHorizontal: Spacing.base, backgroundColor: 'transparent' }}
+          contentContainerStyle={{ paddingBottom: 80, paddingHorizontal: Spacing.base, backgroundColor: 'transparent' }}
           columnWrapperStyle={{ gap: Spacing.sm, marginBottom: Spacing.sm }}
         onScroll={(e) => { scrollPositionRef.current = e.nativeEvent.contentOffset.y; }}
         scrollEventThrottle={100}

@@ -579,9 +579,9 @@ class KavitaAPI {
       console.warn(`[KavitaAPI] ${KAVITA_ENDPOINTS.onDeck} failed:`, error.response?.status, error.message);
     }
 
-    // Fallback 2: try common library IDs (1, 2, 3) to discover additional libraries
+    // Fallback 2: try common library IDs (1-20) to discover additional libraries
     console.log('[KavitaAPI] Trying fallback: probing common library IDs...');
-    const commonLibraryIds = [1, 2, 3, 4, 5];
+    const commonLibraryIds = Array.from({ length: 20 }, (_, i) => i + 1); // 1-20
 
     for (const libId of commonLibraryIds) {
       try {

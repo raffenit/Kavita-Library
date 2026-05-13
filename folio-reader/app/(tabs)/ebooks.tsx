@@ -572,6 +572,7 @@ export default function EbooksScreen() {
   const [filtersExpanded, setFiltersExpanded] = useState(false);
   const [activeFilterTab, setActiveFilterTab] = useState<'library' | 'genre' | 'author' | 'tag' | 'collection'>('library');
   const [showContinueReading, setShowContinueReading] = useState(true);
+  const [continueSectionMinimized, setContinueSectionMinimized] = useState(false);
 
   // Multi-select state for bulk editing
   const [isSelectionMode, setIsSelectionMode] = useState(false);
@@ -1047,6 +1048,25 @@ export default function EbooksScreen() {
         }}
       />
       
+      {/* Continue Reading Section - outside scroll area */}
+      {showContinueReading && (
+        <View style={{ marginHorizontal: Spacing.base }}>
+          <ContinueSection
+            title="Continue Reading"
+            minimized={continueSectionMinimized}
+            items={recentSeries.map((s: any): ContinueItem => ({
+              id: s.seriesId || s.id,
+              title: s.localizedName || s.name,
+              subtitle: s.libraryName,
+              coverUrl: kavitaAPI.getSeriesCoverUrl(s.seriesId || s.id),
+              progress: s.pages > 0 ? (s.pagesRead / s.pages) * 100 : 0,
+            }))}
+            onPressItem={(item) => router.push(`/series/${item.id}`)}
+            onContextMenu={(item, x, y) => openMenu(Number(item.id), item.title, x, y)}
+          />
+        </View>
+      )}
+
       <View style={{ flex: 1, marginHorizontal: Spacing.base }}>
         <FlatList
           ref={flatListRef}
@@ -1056,29 +1076,21 @@ export default function EbooksScreen() {
           numColumns={numColumns}
           contentContainerStyle={{ paddingBottom: 80, backgroundColor: 'transparent' }}
           columnWrapperStyle={{ paddingHorizontal: Spacing.base, gap: Spacing.sm, marginBottom: Spacing.sm }}
-        onScroll={(e) => { scrollPositionRef.current = e.nativeEvent.contentOffset.y; }}
+        onScroll={(e) => { 
+          scrollPositionRef.current = e.nativeEvent.contentOffset.y;
+          // Minimize continue section when scrolling starts
+          if (e.nativeEvent.contentOffset.y > 10 && !continueSectionMinimized) {
+            setContinueSectionMinimized(true);
+          } else if (e.nativeEvent.contentOffset.y <= 10 && continueSectionMinimized) {
+            setContinueSectionMinimized(false);
+          }
+        }}
         scrollEventThrottle={100}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accent} />}
         onEndReached={loadMore}
         onEndReachedThreshold={0.3}
         ListHeaderComponent={
-          <View>
-            {showContinueReading && (
-              <ContinueSection
-                title="Continue Reading"
-                items={recentSeries.map((s: any): ContinueItem => ({
-                  id: s.seriesId || s.id,
-                  title: s.localizedName || s.name,
-                  subtitle: s.libraryName,
-                  coverUrl: kavitaAPI.getSeriesCoverUrl(s.seriesId || s.id),
-                  progress: s.pages > 0 ? (s.pagesRead / s.pages) * 100 : 0,
-                }))}
-                onPressItem={(item) => router.push(`/series/${item.id}`)}
-                onContextMenu={(item, x, y) => openMenu(Number(item.id), item.title, x, y)}
-              />
-            )}
-            {seriesLoading && recentSeries.length > 0 && <ActivityIndicator color={colors.accent} />}
-          </View>
+          seriesLoading && recentSeries.length > 0 ? <ActivityIndicator color={colors.accent} /> : null
         }
         ListEmptyComponent={
           !seriesLoading ? (

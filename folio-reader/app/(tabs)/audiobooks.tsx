@@ -66,6 +66,7 @@ export default function AudiobooksScreen() {
   const [filtersExpanded, setFiltersExpanded] = useState(false);
   const [activeFilterTab, setActiveFilterTab] = useState<'library' | 'genre' | 'author' | 'tag' | 'collection'>('library');
   const [showContinueListening, setShowContinueListening] = useState(true);
+  const [continueSectionMinimized, setContinueSectionMinimized] = useState(false);
 
   // Chip context menu state
   const [chipMenu, setChipMenu] = useState<{
@@ -439,6 +440,24 @@ export default function AudiobooksScreen() {
             onClearAll={() => { selectLibrary(null); setSelectedGenreId(null); setSelectedAuthorId(null); setSelectedTagId(null); setSelectedCollectionId(null); }}
           />
 
+      {/* Continue Listening Section - outside scroll area */}
+      {shouldShowContinueListening && (
+        <View style={{ marginHorizontal: Spacing.base }}>
+          <ContinueSection
+            title="Continue Listening"
+            minimized={continueSectionMinimized}
+            items={continueListening.map((item): ContinueItem => ({
+              id: item.id,
+              title: item.title,
+              subtitle: item.author,
+              coverUrl: (LibraryFactory.getProvider('abs') as any).getCoverUrl?.(item.id) || '',
+              progress: item.progress ? item.progress * 100 : 0,
+            }))}
+            onPressItem={(item) => router.push(`/audiobook/${item.id}`)}
+          />
+        </View>
+      )}
+
         <View style={{ flex: 1, marginHorizontal: Spacing.base }}>
           <FlatList
             key={numColumns}
@@ -447,27 +466,20 @@ export default function AudiobooksScreen() {
             numColumns={numColumns}
             contentContainerStyle={{ paddingBottom: 120, gap: Spacing.sm }}
             columnWrapperStyle={{ paddingHorizontal: Spacing.base, gap: Spacing.sm, marginBottom: Spacing.sm }}
+          onScroll={(e) => {
+            // Minimize continue section when scrolling starts
+            if (e.nativeEvent.contentOffset.y > 10 && !continueSectionMinimized) {
+              setContinueSectionMinimized(true);
+            } else if (e.nativeEvent.contentOffset.y <= 10 && continueSectionMinimized) {
+              setContinueSectionMinimized(false);
+            }
+          }}
+          scrollEventThrottle={100}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accent} />}
           onEndReached={loadMore}
           onEndReachedThreshold={0.3}
           ListFooterComponent={loadingMore ? <ActivityIndicator color={colors.accent} style={{ padding: Spacing.xl }} /> : null}
-          ListHeaderComponent={
-            <View>
-              {shouldShowContinueListening && (
-                <ContinueSection
-                  title="Continue Listening"
-                  items={continueListening.map((item): ContinueItem => ({
-                    id: item.id,
-                    title: item.title,
-                    subtitle: item.author,
-                    coverUrl: (LibraryFactory.getProvider('abs') as any).getCoverUrl?.(item.id) || '',
-                    progress: item.progress ? item.progress * 100 : 0,
-                  }))}
-                  onPressItem={(item) => router.push(`/audiobook/${item.id}`)}
-                />
-              )}
-            </View>
-          }
+          ListHeaderComponent={null}
           ListEmptyComponent={
             <View style={[styles.centered, { gap: Spacing.md }]}>
               <Ionicons name="headset-outline" size={48} color={colors.textMuted} />

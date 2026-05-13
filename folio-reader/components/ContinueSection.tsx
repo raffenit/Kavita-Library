@@ -29,6 +29,7 @@ interface ContinueSectionProps {
   onContextMenu?: (item: ContinueItem, x: number, y: number) => void;
   onPlay?: (item: ContinueItem) => void;
   isPlaying?: (item: ContinueItem) => boolean;
+  minimized?: boolean;
 }
 
 // ── Individual Card ───────────────────────────────────────────────────────────
@@ -120,64 +121,69 @@ export function ContinueSection({
   onContextMenu,
   onPlay,
   isPlaying,
+  minimized = false,
 }: ContinueSectionProps) {
   const { colors } = useTheme();
 
   if (!items.length) return null;
 
   return (
-    <View style={{ marginBottom: Spacing.md }}>
+    <View style={{ marginBottom: minimized ? 0 : Spacing.md }}>
       {/* Top gradient divider - full width */}
       {Platform.OS === 'web' ? (
         <div style={{
           height: 1,
           background: `radial-gradient(ellipse at center, ${colors.accent}50 0%, ${colors.secondary}55 25%, #8B6DB8 50%, #A85A95 75%, ${colors.secondary}65 100%)`,
-          marginBottom: Spacing.md,
+          marginBottom: minimized ? 0 : Spacing.md,
           width: '100%',
         }} />
       ) : (
-        <View style={{ height: 1, backgroundColor: colors.border, marginBottom: Spacing.md, width: '100%' }} />
+        <View style={{ height: 1, backgroundColor: colors.border, marginBottom: minimized ? 0 : Spacing.md, width: '100%' }} />
       )}
 
       {/* Header */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: Spacing.base, marginBottom: Spacing.sm, gap: Spacing.sm }}>
-        <Text style={{ fontSize: Typography.sm, fontWeight: Typography.bold, color: colors.textPrimary }}>
-          {title}
-        </Text>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-          <View style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: colors.accent }} />
-          <Text style={{ fontSize: 10, color: colors.textMuted }}>{items.length}</Text>
+      {!minimized && (
+        <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: Spacing.base, marginBottom: Spacing.sm, gap: Spacing.sm }}>
+          <Text style={{ fontSize: Typography.sm, fontWeight: Typography.bold, color: colors.textPrimary }}>
+            {title}
+          </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+            <View style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: colors.accent }} />
+            <Text style={{ fontSize: 10, color: colors.textMuted }}>{items.length}</Text>
+          </View>
         </View>
-      </View>
+      )}
 
       {/* Horizontal scroll */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: Spacing.base, paddingBottom: 2 }}
-      >
-        {items.map((item) => (
-          <ContinueCard
-            key={String(item.id)}
-            item={item}
-            onPress={() => onPressItem(item)}
-            onContextMenu={onContextMenu ? (x, y) => onContextMenu(item, x, y) : undefined}
-            onPlay={onPlay ? () => onPlay(item) : undefined}
-            isPlaying={isPlaying ? isPlaying(item) : false}
-          />
-        ))}
-      </ScrollView>
+      {!minimized && (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: Spacing.base, paddingBottom: 2 }}
+        >
+          {items.map((item) => (
+            <ContinueCard
+              key={String(item.id)}
+              item={item}
+              onPress={() => onPressItem(item)}
+              onContextMenu={onContextMenu ? (x, y) => onContextMenu(item, x, y) : undefined}
+              onPlay={onPlay ? () => onPlay(item) : undefined}
+              isPlaying={isPlaying ? isPlaying(item) : false}
+            />
+          ))}
+        </ScrollView>
+      )}
 
       {/* Bottom gradient divider - full width */}
       {Platform.OS === 'web' ? (
         <div style={{
           height: 1,
           background: `radial-gradient(ellipse at center, ${colors.accent}50 0%, ${colors.secondary}55 25%, #8B6DB8 50%, #A85A95 75%, ${colors.secondary}65 100%)`,
-          marginTop: Spacing.md,
+          marginTop: minimized ? 0 : Spacing.md,
           width: '100%',
         }} />
       ) : (
-        <View style={{ height: 1, backgroundColor: colors.border, marginTop: Spacing.md, width: '100%' }} />
+        <View style={{ height: 1, backgroundColor: colors.border, marginTop: minimized ? 0 : Spacing.md, width: '100%' }} />
       )}
     </View>
   );

@@ -6,8 +6,11 @@ REM Usage:
 REM   deploy.bat                    Deploy with ..\docker-compose.yml
 REM   deploy.bat ..\docker-compose.yml   Custom compose path
 
+REM Get the directory where this script is located
+set SCRIPT_DIR=%~dp0
+
 set COMPOSE_FILE=%1
-if "%COMPOSE_FILE%"=="" set COMPOSE_FILE=..\docker-compose.yml
+if "%COMPOSE_FILE%"=="" set COMPOSE_FILE=%SCRIPT_DIR%..\docker-compose.yml
 
 echo ========================================
 echo Folio Docker Compose Deployment

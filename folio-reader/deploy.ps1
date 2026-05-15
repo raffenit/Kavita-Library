@@ -3,14 +3,20 @@
 # Builds and deploys the full stack: Folio + Kavita + ABS + Caddy
 #
 # Usage:
-#   .\deploy.ps1                    # Deploy with ../docker-compose.yml
+#   .\deploy.ps1                    # Deploy with ..\docker-compose.yml
 #   .\deploy.ps1 -File ..\docker-compose.yml   # Custom compose path
 
 param(
-    [string]$File = "..\docker-compose.yml",
+    [string]$File = "",
     [switch]$Pull = $false,
     [switch]$Down = $false
 )
+
+# Resolve default path relative to script location
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+if ([string]::IsNullOrEmpty($File)) {
+    $File = Join-Path $scriptDir "..\docker-compose.yml"
+}
 
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "Folio Docker Compose Deployment" -ForegroundColor Cyan

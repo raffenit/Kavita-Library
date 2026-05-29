@@ -15,13 +15,8 @@ node_modules/
 DOCS.md
 
 # Deployment infrastructure
-deploy-webhook.js
 Dockerfile.deploy
 docker-compose.deploy.yml
-
-# Server-specific compose and proxy config (template versions are in folio-reader/)
-/docker-compose.yml
-/Caddyfile
 
 # Build outputs
 dist/
@@ -37,3 +32,15 @@ yarn-error.log*
 # OS files
 .DS_Store
 Thumbs.db
+
+# Docker data volumes
+abs_config/
+abs_metadata/
+
+
+# Infrastructure data volumes
+kavita_data/
+logs/
+data/
+backups/
+

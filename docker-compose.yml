@@ -1,0 +1,76 @@
+services:
+  kavita:
+    image: jvmilazz0/kavita:latest
+    container_name: kavita
+    volumes:
+      - ./kavita_data:/kavita/config:rw
+      - D:/Library/EBooks:/Books/ebooks:rw
+      - D:/Library/GraphicNovels:/Books/graphicnovels:rw
+      - D:/Library/Comics:/Books/comics:rw
+      - D:/Library/Manga:/Books/manga:rw
+    restart: unless-stopped
+    networks:
+      - media-network
+
+  audiobookshelf:
+    image: ghcr.io/advplyr/audiobookshelf:latest
+    container_name: audiobookshelf
+    volumes:
+      - ./abs_config:/config:rw
+      - ./abs_metadata:/metadata:rw
+      - D:/Library/Audio/Audiobooks:/audiobooks:rw
+      - D:/Library/Audio/Podcasts:/podcasts:rw
+    restart: unless-stopped
+    networks:
+      - media-network
+
+  caddy:
+    image: caddy:latest
+    container_name: caddy
+    ports:
+      - "8050:8050"    # Kavita
+      - "81:81"        # Audiobookshelf
+      - "3001:3001"    # Folio
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data:rw
+      - caddy_config:/config:rw
+    restart: unless-stopped
+    networks:
+      - media-network
+
+  folio:
+    build:
+      context: ./Folio-Library-Server/folio-reader
+      dockerfile: Dockerfile
+    container_name: folio
+    restart: unless-stopped
+    networks:
+      - media-network
+
+  webhook-server:
+    build:
+      context: ./Folio-Library-Server/folio-reader
+      dockerfile: Dockerfile.webhook
+    container_name: folio-webhook
+    ports:
+      - "9000:9000"
+    environment:
+      - DEPLOY_SECRET=${DEPLOY_SECRET}
+      - PUBLIC_SERVER_URL=${PUBLIC_SERVER_URL}
+      - FOLIO_API_KEY=${FOLIO_API_KEY}
+    volumes:
+      - ./Folio-Library-Server:/repo
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data:/data
+    restart: unless-stopped
+    networks:
+      - media-network
+
+volumes:
+  caddy_data:
+  caddy_config:
+
+networks:
+  media-network:
+    driver: bridge

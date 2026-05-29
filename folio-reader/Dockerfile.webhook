@@ -6,7 +6,7 @@ RUN apk add --no-cache git docker-cli
 WORKDIR /app
 
 # Copy webhook server
-COPY deploy-webhook.js /app/deploy-webhook.js
+COPY scripts/deploy-webhook.js /app/deploy-webhook.js
 
 EXPOSE 9000
 

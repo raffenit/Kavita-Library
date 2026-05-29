@@ -6,9 +6,9 @@ REM Usage:
 REM   deploy.bat                    Deploy with ..\docker-compose.yml
 REM   deploy.bat ..\docker-compose.yml   Custom compose path
 
-REM Get the directory where this script is located and resolve ..\docker-compose.yml
+REM Get the directory where this script is located and resolve ..\..\docker-compose.yml
 set SCRIPT_DIR=%~dp0
-set PARENT_DIR=%SCRIPT_DIR%..
+set PARENT_DIR=%SCRIPT_DIR%..\..
 for /f "tokens=*" %%a in ("%PARENT_DIR%") do set PARENT_DIR=%%~fa
 
 set COMPOSE_FILE=%1

@@ -94,7 +94,8 @@ Folio/
 │   │   ├── LibraryProvider.ts     # Unified interface
 │   │   └── LibraryFactory.ts      # Provider factory
 │   ├── server.js            # Node.js proxy server (CORS handling)
-│   ├── deploy-webhook.js    # Auto-deploy webhook receiver
+│   ├── scripts/
+│   │   └── deploy-webhook.js    # Auto-deploy webhook receiver
 │   ├── Dockerfile           # Main app container
 │   └── Dockerfile.deploy    # Deploy webhook container
 ├── docker-compose.yml       # Main app orchestration

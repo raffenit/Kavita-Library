@@ -1,0 +1,90 @@
+# Unified Caddyfile — Single reverse proxy for Kavita, ABS, and Folio
+# Place this file in docker-files/ alongside docker-compose.yml
+#
+# All services run inside Docker on the 'media-network' network.
+# Caddy proxies external requests to internal containers.
+
+# ── Kavita E-book Server ─────────────────────────────────────────────────────
+# Access at: http://localhost:8050 or http://100.104.199.67:8050
+:8050 {
+    reverse_proxy kavita:5000
+
+    @cors_preflight method OPTIONS
+    handle @cors_preflight {
+        header Access-Control-Allow-Origin "*"
+        header Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE, PATCH"
+        header Access-Control-Allow-Headers "*"
+        header Access-Control-Max-Age "1728000"
+        respond "" 204
+    }
+
+    header Access-Control-Allow-Origin "*"
+    header Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE, PATCH"
+    header Access-Control-Allow-Headers "*"
+
+    encode gzip
+}
+
+# ── Audiobookshelf Server ────────────────────────────────────────────────────
+# Access at: http://localhost:81 or http://100.104.199.67:81
+:81 {
+    reverse_proxy audiobookshelf:80
+
+    @cors_preflight method OPTIONS
+    handle @cors_preflight {
+        header Access-Control-Allow-Origin "*"
+        header Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE, PATCH"
+        header Access-Control-Allow-Headers "*"
+        header Access-Control-Max-Age "1728000"
+        respond "" 204
+    }
+
+    header Access-Control-Allow-Origin "*"
+    header Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE, PATCH"
+    header Access-Control-Allow-Headers "*"
+
+    encode gzip
+}
+
+# ── Folio PWA (with proxy features) ─────────────────────────────────────────
+# Access at: http://localhost:3001 or http://100.104.199.67:3001
+# Note: /dynamic-proxy is handled by Folio's built-in server.js proxy
+:3001 {
+    # CORS preflight — must be first
+    @cors_preflight method OPTIONS
+    handle @cors_preflight {
+        header Access-Control-Allow-Origin "*"
+        header Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE, PATCH"
+        header Access-Control-Allow-Headers "*"
+        header Access-Control-Max-Age "1728000"
+        respond "" 204
+    }
+
+    # OpenLibrary proxy for metadata/cover lookups
+    handle /openlibrary-proxy* {
+        uri strip_prefix /openlibrary-proxy
+        reverse_proxy https://openlibrary.org {
+            header_up Host openlibrary.org
+        }
+    }
+
+    # Cover upload proxy to Kavita
+    handle /cover-proxy {
+        reverse_proxy kavita:5000 {
+            header_up Host {host}
+        }
+    }
+
+    # Everything else (including /dynamic-proxy) -> Folio's server.js
+    handle {
+        reverse_proxy folio:80
+    }
+
+    header {
+        Access-Control-Allow-Origin "*"
+        Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE, PATCH"
+        Access-Control-Allow-Headers "*"
+    }
+
+    encode gzip
+}

@@ -158,7 +158,8 @@ class AudiobookshelfAPI {
         if (config.params) {
           Object.entries(config.params).forEach(([k, v]) => { merged.set(k, String(v)); });
         }
-        if (this.apiKey) {
+        // Don't add token to login endpoint — ABS rejects login requests with a token
+        if (this.apiKey && !cleanPath.endsWith('/api/auth/login')) {
           merged.set('token', this.apiKey);
         }
 
@@ -248,18 +249,22 @@ class AudiobookshelfAPI {
   }
 
   async loginWithCredentials(username: string, password: string): Promise<boolean> {
+    // Stale JWT in the default Authorization header causes ABS to reject login
+    const prevAuth = this.client.defaults.headers.common['Authorization'];
+    delete this.client.defaults.headers.common['Authorization'];
+
     try {
       const response = await this.client.post('/api/auth/login', {
         username,
         password,
       });
-      
+
       if (response.data?.token) {
         this.jwtToken = response.data.token;
         this.username = username;
         this.password = password;
         this.setJwtHeader();
-        
+
         // Store credentials
         await credentials.abs.setUsername(username);
         await credentials.abs.setPassword(password);
@@ -268,6 +273,10 @@ class AudiobookshelfAPI {
       }
       return false;
     } catch (error: any) {
+      // Restore previous auth header on failure so other requests still work
+      if (prevAuth) {
+        this.client.defaults.headers.common['Authorization'] = prevAuth;
+      }
       console.error('[ABS] JWT login failed:', error?.response?.status, error?.message);
       return false;
     }

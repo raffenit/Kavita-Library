@@ -1,7 +1,5 @@
 # Software Version Tracking
 
-> **Rule:** Before recommending commands or configuration for any software below, verify the version listed here against current documentation.
-
 ## Infrastructure
 
 | Software | Version | Notes | Last Updated |

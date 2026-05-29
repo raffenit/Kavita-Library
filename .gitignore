@@ -6,13 +6,9 @@ node_modules/
 .env.local
 .env.*.local
 
-# IDE and AI dev notes
-.claude/
+# IDE and dev notes
 .vscode/
 .expo/
-
-# Documentation (AI-generated)
-DOCS.md
 
 # Deployment infrastructure
 deploy-webhook.js
@@ -22,6 +18,10 @@ docker-compose.deploy.yml
 # Server-specific compose and proxy config (template versions are in folio-reader/)
 /docker-compose.yml
 /Caddyfile
+
+# AI dev notes (local-only, see .git/info/exclude)
+# .claude/
+# DOCS.md
 
 # Build outputs
 dist/

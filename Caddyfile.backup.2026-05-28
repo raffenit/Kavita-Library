@@ -1,0 +1,84 @@
+# Caddyfile - Production Reverse Proxy
+# Place this file in the same directory as docker-compose.yml on your server
+#
+# All services run inside Docker on the 'media-network' network.
+# Caddy proxies external requests to internal containers.
+
+# ── Folio PWA (Main App) ─────────────────────────────────────────────────────
+# Access at: http://localhost or your domain
+# Default: proxy to folio container on port 80
+:80 {
+    reverse_proxy folio:80
+
+    # CORS headers for web app access
+    @cors_preflight method OPTIONS
+    handle @cors_preflight {
+        header Access-Control-Allow-Origin "*"
+        header Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE, PATCH"
+        header Access-Control-Allow-Headers "*"
+        header Access-Control-Max-Age "1728000"
+        respond "" 204
+    }
+
+    header Access-Control-Allow-Origin "*"
+    header Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE, PATCH"
+    header Access-Control-Allow-Headers "*"
+}
+
+# ── Kavita E-book Server ──────────────────────────────────────────────────────
+# Internal: kavita:5000
+# If exposing externally, use a subdomain or different port
+:8050 {
+    reverse_proxy kavita:5000
+
+    # CORS headers for Kavita API
+    @cors_preflight method OPTIONS
+    handle @cors_preflight {
+        header Access-Control-Allow-Origin "*"
+        header Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE"
+        header Access-Control-Allow-Headers "*"
+        header Access-Control-Max-Age "1728000"
+        respond "" 204
+    }
+
+    header Access-Control-Allow-Origin "*"
+    header Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE"
+    header Access-Control-Allow-Headers "*"
+}
+
+# ── Audiobookshelf Server ───────────────────────────────────────────────────
+# Internal: audiobookshelf:80
+# If exposing externally, use a subdomain or different port
+:13378 {
+    reverse_proxy audiobookshelf:80
+
+    # CORS headers for ABS API (very sensitive to CORS)
+    @cors_preflight method OPTIONS
+    handle @cors_preflight {
+        header Access-Control-Allow-Origin "*"
+        header Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE"
+        header Access-Control-Allow-Headers "*"
+        header Access-Control-Max-Age "1728000"
+        respond "" 204
+    }
+
+    header Access-Control-Allow-Origin "*"
+    header Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE"
+    header Access-Control-Allow-Headers "*"
+}
+
+# ── Optional: HTTPS with real domain ────────────────────────────────────────
+# Uncomment and replace with your actual domain for automatic HTTPS
+# (Requires port 443 to be open and domain DNS pointing to this server)
+#
+# folio.yourdomain.com {
+#     reverse_proxy folio:80
+# }
+#
+# kavita.yourdomain.com {
+#     reverse_proxy kavita:5000
+# }
+#
+# abs.yourdomain.com {
+#     reverse_proxy audiobookshelf:80
+# }

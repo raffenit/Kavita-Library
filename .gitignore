@@ -6,7 +6,7 @@ node_modules/
 .env.local
 .env.*.local
 
-# IDE and AI dev notes
+# IDE and dev notes
 .claude/
 .vscode/
 .expo/

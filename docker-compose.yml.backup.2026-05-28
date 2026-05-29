@@ -1,0 +1,77 @@
+# Production Docker Compose with Caddy Reverse Proxy
+# Copy this file to your server and customize paths
+#
+# Services:
+#   - folio: The React PWA app (proxied by Caddy)
+#   - kavita: E-book/comic server
+#   - audiobookshelf: Audiobook/podcast server
+#   - caddy: Reverse proxy + SSL termination
+#
+# Usage:
+#   docker-compose up -d --build
+
+services:
+  # Caddy Reverse Proxy
+  caddy:
+    image: caddy:2-alpine
+    container_name: caddy
+    ports:
+      - "8080:80"
+      - "443:443"
+      - "8050:8050"
+      - "13378:13378"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    restart: unless-stopped
+    networks:
+      - media-network
+
+  # Folio PWA App
+  folio:
+    build:
+      context: ./folio-reader
+      dockerfile: Dockerfile
+    container_name: folio
+    restart: unless-stopped
+    networks:
+      - media-network
+
+  # Kavita E-book Server
+  kavita:
+    image: jvmilazz0/kavita:latest
+    container_name: kavita
+    volumes:
+      - D:/Library/Manga:/Books/manga
+      - D:/Library/Comics:/Books/comics
+      - D:/Library/GraphicNovels:/Books/graphicnovels
+      - D:/Library/EBooks:/Books/books
+      - kavita-config:/kavita/config
+    restart: unless-stopped
+    networks:
+      - media-network
+
+  # Audiobookshelf Server
+  audiobookshelf:
+    image: ghcr.io/advplyr/audiobookshelf:latest
+    container_name: audiobookshelf
+    volumes:
+      - D:/Library/Audio/Audiobooks:/Books/audiobooks
+      - D:/Library/Audio/Podcasts:/Books/podcasts
+      - audiobookshelf-config:/config
+      - audiobookshelf-metadata:/metadata
+    restart: unless-stopped
+    networks:
+      - media-network
+
+networks:
+  media-network:
+    driver: bridge
+
+volumes:
+  kavita-config:
+  audiobookshelf-config:
+  audiobookshelf-metadata:
+  caddy-data:
+  caddy-config:
